@@ -1,26 +1,24 @@
 import { test, expect } from '@playwright/test';
+import { RegistrationPage } from './registration-page.js';
 
 test.describe('Реєстрація нового користувача', () => {
   test('REG-06 Перевірка невідповідності паролів', async ({ page }) => {
+    const registrationPage = new RegistrationPage(page);
+
     // 1. Відкрити форму Registration.
-    await page.goto('https://guest:welcome2qauto@qauto.forstudy.space/');
-    await page.getByRole('button', { name: 'Sign up' }).click();
-    const registrationDialog = page.getByRole('dialog');
-    await expect(registrationDialog.getByRole('heading', { name: 'Registration' })).toBeVisible();
+    await registrationPage.open();
+    await expect(registrationPage.heading).toBeVisible();
 
     // 2. Ввести валідні дані, крім повторного пароля, який має відрізнятися.
-    await page.locator('#signupName').fill('Ada');
-    await page.locator('#signupLastName').fill('Lovelace');
-    await registrationDialog.getByRole('textbox', { name: 'Name Last name Email' }).fill(
-      `aqa-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.com`,
-    );
-    await registrationDialog.getByRole('textbox', { name: 'Password', exact: true }).fill('Aa123456');
-    const confirmation = registrationDialog.getByRole('textbox', { name: 'Re-enter password' });
-    await confirmation.fill('Aa123457');
-    await page.locator('#signupName').click();
+    await registrationPage.fillName('Ada');
+    await registrationPage.fillLastName('Lovelace');
+    await registrationPage.fillEmail(`aqa-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.com`);
+    await registrationPage.fillPassword('Aa123456');
+    await registrationPage.fillPasswordConfirmation('Aa123457');
+    await registrationPage.focusName();
 
-    await expect(registrationDialog.getByText('Passwords do not match')).toBeVisible();
-    await expect(confirmation).toHaveCSS('border-color', 'rgb(220, 53, 69)');
-    await expect(registrationDialog.getByRole('button', { name: 'Register' })).toBeDisabled();
+    await expect(registrationPage.error('Passwords do not match')).toBeVisible();
+    await expect(registrationPage.passwordConfirmation).toHaveCSS('border-color', 'rgb(220, 53, 69)');
+    await expect(registrationPage.registerButton).toBeDisabled();
   });
 });

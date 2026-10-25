@@ -1,26 +1,24 @@
 import { test, expect } from '@playwright/test';
+import { RegistrationPage } from './registration-page.js';
 
 test.describe('Реєстрація нового користувача', () => {
   test('REG-07 Перевірка обов’язковості повторного пароля', async ({ page }) => {
+    const registrationPage = new RegistrationPage(page);
+
     // 1. Відкрити форму Registration.
-    await page.goto('https://guest:welcome2qauto@qauto.forstudy.space/');
-    await page.getByRole('button', { name: 'Sign up' }).click();
-    const registrationDialog = page.getByRole('dialog');
-    await expect(registrationDialog.getByRole('heading', { name: 'Registration' })).toBeVisible();
+    await registrationPage.open();
+    await expect(registrationPage.heading).toBeVisible();
 
     // 2. Заповнити інші поля валідними значеннями, а підтвердження залишити порожнім.
-    await page.locator('#signupName').fill('Ada');
-    await page.locator('#signupLastName').fill('Lovelace');
-    await registrationDialog.getByRole('textbox', { name: 'Name Last name Email' }).fill(
-      `aqa-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.com`,
-    );
-    await registrationDialog.getByRole('textbox', { name: 'Password', exact: true }).fill('Aa123456');
-    const confirmation = registrationDialog.getByRole('textbox', { name: 'Re-enter password' });
-    await confirmation.click();
-    await page.locator('#signupName').click();
+    await registrationPage.fillName('Ada');
+    await registrationPage.fillLastName('Lovelace');
+    await registrationPage.fillEmail(`aqa-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.com`);
+    await registrationPage.fillPassword('Aa123456');
+    await registrationPage.focusPasswordConfirmation();
+    await registrationPage.focusName();
 
-    await expect(registrationDialog.getByText('Re-enter password required')).toBeVisible();
-    await expect(confirmation).toHaveCSS('border-color', 'rgb(220, 53, 69)');
-    await expect(registrationDialog.getByRole('button', { name: 'Register' })).toBeDisabled();
+    await expect(registrationPage.error('Re-enter password required')).toBeVisible();
+    await expect(registrationPage.passwordConfirmation).toHaveCSS('border-color', 'rgb(220, 53, 69)');
+    await expect(registrationPage.registerButton).toBeDisabled();
   });
 });

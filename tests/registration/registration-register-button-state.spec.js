@@ -1,27 +1,26 @@
 import { test, expect } from '@playwright/test';
+import { RegistrationPage } from './registration-page.js';
 
 test.describe('Реєстрація нового користувача', () => {
   test('REG-08 Перевірка стану кнопки Register при виправленні помилки', async ({ page }) => {
-    // 1. Заповнити форму валідними значеннями, крім некоректного Email.
-    await page.goto('https://guest:welcome2qauto@qauto.forstudy.space/');
-    await page.getByRole('button', { name: 'Sign up' }).click();
-    const registrationDialog = page.getByRole('dialog');
-    await expect(registrationDialog.getByRole('heading', { name: 'Registration' })).toBeVisible();
-    await page.locator('#signupName').fill('Ada');
-    await page.locator('#signupLastName').fill('Lovelace');
-    const email = registrationDialog.getByRole('textbox', { name: 'Name Last name Email' });
-    await email.fill('invalid-email');
-    await registrationDialog.getByRole('textbox', { name: 'Password', exact: true }).fill('Aa123456');
-    await registrationDialog.getByRole('textbox', { name: 'Re-enter password' }).fill('Aa123456');
-    await page.locator('#signupName').click();
+    const registrationPage = new RegistrationPage(page);
 
-    await expect(registrationDialog.getByText('Email is incorrect')).toBeVisible();
-    const registerButton = registrationDialog.getByRole('button', { name: 'Register' });
-    await expect(registerButton).toBeDisabled();
+    // 1. Заповнити форму валідними значеннями, крім некоректного Email.
+    await registrationPage.open();
+    await expect(registrationPage.heading).toBeVisible();
+    await registrationPage.fillName('Ada');
+    await registrationPage.fillLastName('Lovelace');
+    await registrationPage.fillEmail('invalid-email');
+    await registrationPage.fillPassword('Aa123456');
+    await registrationPage.fillPasswordConfirmation('Aa123456');
+    await registrationPage.focusName();
+
+    await expect(registrationPage.error('Email is incorrect')).toBeVisible();
+    await expect(registrationPage.registerButton).toBeDisabled();
 
     // 2. Виправити Email і перевірити активацію Register.
-    await email.fill(`aqa-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.com`);
-    await expect(registrationDialog.getByText('Email is incorrect')).toBeHidden();
-    await expect(registerButton).toBeEnabled();
+    await registrationPage.fillEmail(`aqa-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.com`);
+    await expect(registrationPage.error('Email is incorrect')).toBeHidden();
+    await expect(registrationPage.registerButton).toBeEnabled();
   });
 });
