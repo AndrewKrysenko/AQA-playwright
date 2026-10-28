@@ -1,13 +1,21 @@
 // @ts-check
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+import path from 'node:path';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+const testEnv = process.env.TEST_ENV ?? 'qauto';
+
+if (!['qauto', 'qauto2'].includes(testEnv)) {
+  throw new Error('Unsupported TEST_ENV. Expected "qauto" or "qauto2".');
+}
+
+dotenv.config({ path: path.resolve(process.cwd(), `.env.${testEnv}`) });
+
+const { BASE_URL, HTTP_USERNAME, HTTP_PASSWORD } = process.env;
+
+if (!BASE_URL || !HTTP_USERNAME || !HTTP_PASSWORD) {
+  throw new Error(`Missing BASE_URL, HTTP_USERNAME, or HTTP_PASSWORD in .env.${testEnv}.`);
+}
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -34,7 +42,11 @@ export default defineConfig({
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-  baseURL: 'https://qauto.forstudy.space',
+  baseURL: BASE_URL,
+  httpCredentials: {
+    username: HTTP_USERNAME,
+    password: HTTP_PASSWORD,
+  },
 
   headless: true,
 
@@ -94,4 +106,3 @@ export default defineConfig({
   //   reuseExistingServer: !process.env.CI,
   // },
 });
-
