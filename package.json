@@ -1,0 +1,27 @@
+{
+  "name": "aqa-playwright",
+  "version": "1.0.0",
+  "description": "playwright homeworks",
+  "main": "index.js",
+  "scripts": {
+    "test:qauto": "TEST_ENV=qauto playwright test",
+    "test:qauto2": "TEST_ENV=qauto2 playwright test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AndrewKrysenko/AQA-playwright.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/AndrewKrysenko/AQA-playwright/issues"
+  },
+  "homepage": "https://github.com/AndrewKrysenko/AQA-playwright#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.5",
+    "dotenv": "^16.4.7"
+  }
+}
