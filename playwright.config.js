@@ -66,6 +66,7 @@ export default defineConfig({
   {
     name: 'setup',
     testMatch: '**/auth.setup.js',
+    use: { ...devices['Desktop Firefox'] },
   },
   {
     name: 'chromium',
